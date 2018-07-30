@@ -1,4 +1,4 @@
-// Simple Package to load JSON-based environment variables. The environment variables could be any type of valid JSON object containing arrays, strings, numbers, boolean, etc.
+// Package jenv is a simple package to load JSON-based environment variables. The environment variables could be any type of valid JSON object containing arrays, strings, numbers, boolean, etc.
 package jenv
 
 import (
@@ -45,28 +45,104 @@ func (env *Jenv) LoadFromString(s string) error {
 	return nil
 }
 
-// Get returns the value stored in Data field. It will return json.RawMessage and boolean indicating value exists or not.
-func (env *Jenv) Get(key string) (json.RawMessage, bool) {
+// Get returns the value stored in Data field. It will return []byte and boolean indicating value exists or not.
+func (env *Jenv) Get(key string) ([]byte, bool) {
 	val, ok := env.Data[key]
-	return val, ok
+	if string(val) == "null" {
+		return nil, ok
+	}
+	return []byte(val), ok
 }
 
-// StringArray will convert the json.RawMessage value into array of string. It will return error if the json.RawMessage format is invalid or if the data is not an array of string.
-func StringArray(data json.RawMessage) ([]string, error) {
+// Boolean will convert the []byte value into float64. It will return error if the []byte format is invalid or if the data is not a boolean.
+func Boolean(data []byte) (bool, error) {
+	var u bool
+	err := json.Unmarshal(data, &u)
+	if err != nil {
+		return false, errors.New("Invalid Format")
+	}
+	return u, nil
+}
+
+// Float64 will convert the []byte value into float64. It will return error if the []byte format is invalid or if the data is not a number.
+func Float64(data []byte) (float64, error) {
+	var u float64
+	err := json.Unmarshal(data, &u)
+	if err != nil {
+		return 0, errors.New("Invalid Format")
+	}
+	return u, nil
+}
+
+// String will convert the []byte value into string. It will return error if the []byte format is invalid or if the data is not a string.
+func String(data []byte) (string, error) {
+	var u string
+	err := json.Unmarshal(data, &u)
+	if err != nil {
+		return "", errors.New("Invalid Format")
+	}
+	return u, nil
+}
+
+// Object will convert the []byte value into struct object passed into the parameter. It will return error if the []byte format is invalid or if the data is not the appropriate type.
+func Object(data []byte, dest interface{}) error {
+	err := json.Unmarshal(data, dest)
+	if err != nil {
+		return errors.New("Invalid Format")
+	}
+	return nil
+}
+
+// Map will convert the []byte value into a string map of json.RawMessage. It will return error if the []byte format is invalid or if the data is not the appropriate type.
+func Map(data []byte) (map[string]json.RawMessage, error) {
+	u := make(map[string]json.RawMessage)
+	err := json.Unmarshal(data, &u)
+	if err != nil {
+		return nil, errors.New("Invalid Format")
+	}
+	return u, nil
+}
+
+// StringArray will convert the []byte value into array of string. It will return error if the []byte format is invalid or if the data is not an array of string.
+func StringArray(data []byte) ([]string, error) {
 	u := []string{}
-	err := json.Unmarshal([]byte(data), &u)
+	err := json.Unmarshal(data, &u)
 	if err != nil {
 		return nil, errors.New("Invalid Format")
 	}
 	return u, nil
 }
 
-// ObjectArray will convert the json.RawMessage value into array of json object. It will return error if the json.RawMessage format is invalid or if the data is not an array of json object.
-func ObjectArray(data json.RawMessage) ([]json.RawMessage, error) {
-	u := []json.RawMessage{}
-	err := json.Unmarshal([]byte(data), &u)
+// Float64Array will convert the []byte value into array of float64. It will return error if the []byte format is invalid or if the data is not an array of number.
+func Float64Array(data []byte) ([]float64, error) {
+	u := []float64{}
+	err := json.Unmarshal(data, &u)
 	if err != nil {
 		return nil, errors.New("Invalid Format")
 	}
 	return u, nil
+}
+
+// BooleanArray will convert the []byte value into array of boolean. It will return error if the []byte format is invalid or if the data is not an array of boolean.
+func BooleanArray(data []byte) ([]bool, error) {
+	u := []bool{}
+	err := json.Unmarshal(data, &u)
+	if err != nil {
+		return nil, errors.New("Invalid Format")
+	}
+	return u, nil
+}
+
+// ObjectArray will convert the []byte value into array of json object. It will return error if the []byte format is invalid or if the data is not an array of json object.
+func ObjectArray(data []byte) ([][]byte, error) {
+	u := []json.RawMessage{}
+	err := json.Unmarshal(data, &u)
+	if err != nil {
+		return nil, errors.New("Invalid Format")
+	}
+	ret := [][]byte{}
+	for _, val := range u {
+		ret = append(ret, []byte(val))
+	}
+	return ret, nil
 }
