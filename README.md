@@ -10,10 +10,10 @@ For guides and reference materials about `Jenv`, see [the documentation](https:/
 
 ## Installation
 
-# Go Get
+### Go Get
 `go get "github.com/raymondhartoyo/jenv"`
 
-# Dependency Management
+### Dependency Management
 `dep ensure -add github.com/raymondhartoyo/jenv`
 
 For guides and reference materials about `Dep`, see `Dep` documentation [here](https://golang.github.io/dep)
